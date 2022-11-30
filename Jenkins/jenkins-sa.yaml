@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: jenkins
+automountServiceAccountToken: false
+secrets:
+- name: jenkins-token-6m25t

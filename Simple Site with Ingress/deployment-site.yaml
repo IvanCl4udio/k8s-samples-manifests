@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: site-nginx
+  namespace: site
+  labels:
+    kubernetes.io/metadata.name: site
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: site-nginx
+  template:
+    metadata:
+      labels:
+        app: site-nginx
+        env: qa
+    spec:
+      volumes:
+        - name: site-nginx-html
+          persistentVolumeClaim:
+            claimName: pvc-site-nginx
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: site-nginx-html 
+          mountPath: /usr/share/nginx/html
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "150m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"

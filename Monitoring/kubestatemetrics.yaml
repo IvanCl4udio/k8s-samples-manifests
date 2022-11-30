@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-alerts
+  namespace: monitoring
+spec:
+  rules:
+  - host: kubestatemetrics.lab.int
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-kube-state-metrics
+            port:
+              number: 8080
+  ingressClassName: nginx

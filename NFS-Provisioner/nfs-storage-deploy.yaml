@@ -1,0 +1,43 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nfs-provisioner-controller
+  namespace: nfs-sto
+spec:   
+  selector:
+    matchLabels:
+      app: nfs-storage-provisioner
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-storage-provisioner
+    spec:
+      serviceAccountName: nfs-client-sa
+      containers:
+        - name: nfs-storage-provisioner
+          image: gcr.io/k8s-staging-sig-storage/nfs-subdir-external-provisioner:v4.0.0
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: managed-nfs-storage
+            - name: NFS_SERVER
+              value: 192.168.0.8
+            - name: NFS_PATH
+              value: /srv/nfs/data
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "150m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: 192.168.0.8
+            path: /srv/nfs/data
