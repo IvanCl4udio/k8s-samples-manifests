@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: xlrelease-deployment
+  name: xl-release-deployment
   namespace: xl-release
   labels:
-    app: xlrelease 
+    app: xl-release 
 spec:
   replicas: 1 
   selector:
     matchLabels:
-      app: xlrelease 
+      app: xl-release 
   template:
     metadata:
       labels:
-        app: xlrelease 
+        app: xl-release 
     spec:
       containers:
-        - name: xlrelease
+        - name: xl-release
           image: xebialabs/xl-release
           env:
             - name: ADMIN_PASSWORD
@@ -24,4 +24,6 @@ spec:
             - name: ACCEPT_EULA
               value: "Y"
           ports:
-          - containerPort: 80
+          - containerPort: 5516
+      nodeSelector:
+        disktype: ssd8    
