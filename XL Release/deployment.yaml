@@ -15,6 +15,10 @@ spec:
       labels:
         app: xl-release 
     spec:
+      volumes:
+        - name: xl-release-vols
+          persistentVolumeClaim:
+            claimName: xl-release-pvc
       containers:
         - name: xl-release
           image: xebialabs/xl-release
@@ -23,7 +27,31 @@ spec:
               value: "papagaio"
             - name: ACCEPT_EULA
               value: "Y"
+            - name: GENERATE_XL_CONFIG
+              value: "false"
           ports:
           - containerPort: 5516
+          volumeMounts:
+            - name: xl-release-vols
+              mountPath: /opt/xebialabs/xl-release-server/conf
+              subPath: conf
+            - name: xl-release-vols
+              mountPath: /opt/xebialabs/xl-release-server/hotfix/
+              subPath: hotfix
+            - name: xl-release-vols
+              mountPath: /opt/xebialabs/xl-release-server/ext/
+              subPath: ext  
+            - name: xl-release-vols
+              mountPath: /opt/xebialabs/xl-release-server/plugins/
+              subPath: xl-release-vols
+            - name: xl-release-vols
+              mountPath: /opt/xebialabs/xl-release-server/repository/
+              subPath: repository
+            - name: xl-release-vols
+              mountPath: /opt/xebialabs/xl-release-server/archive/
+              subPath: archive
+            - name: xl-release-vols
+              mountPath: /opt/xebialabs/xl-release-server/reports/
+              subPath: reports
       nodeSelector:
         disktype: ssd8    
