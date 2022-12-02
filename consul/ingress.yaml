@@ -1,0 +1,27 @@
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: ingres-consul
+    namespace: consul
+  spec:
+    ingressClassName: nginx
+    tls:
+    - hosts:
+        - consul.lab.int
+      secretName: consul-tls
+    rules:
+    - host: consul.lab.int
+      http:
+        paths:
+        - backend:
+            service:
+              name: consul-server
+              port:
+                number: 8500
+          path: /
+          pathType: Prefix
+kind: List
+metadata:
+  resourceVersion: ""

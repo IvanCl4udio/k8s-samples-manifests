@@ -4,6 +4,10 @@ metadata:
   name: ingress-xl-release
   namespace: xl-release
 spec:
+  tls:
+  - hosts:
+    - xlrelease.lab.int
+    secretName: xl-release-tls
   rules:
   - host: xlrelease.lab.int
     http:
