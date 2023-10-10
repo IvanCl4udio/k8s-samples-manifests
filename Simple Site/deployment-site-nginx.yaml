@@ -5,6 +5,7 @@ metadata:
   namespace: site
   labels:
     kubernetes.io/metadata.name: site
+    backstage.io/kubernetes-id: tutorial
 spec:
   replicas: 1
   selector:
@@ -15,6 +16,7 @@ spec:
       labels:
         app: site-nginx
         env: qa
+        backstage.io/kubernetes-id: tutorial
     spec:
       volumes:
         - name: site-nginx-html
