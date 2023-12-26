@@ -26,7 +26,7 @@ spec:
             - name: PROVISIONER_NAME
               value: managed-nfs-storage
             - name: NFS_SERVER
-              value: 10.10.0.6
+              value: 192.168.0.199
             - name: NFS_PATH
               value: /srv/nfs/data
           resources:
@@ -39,5 +39,5 @@ spec:
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.10.0.6
+            server: 192.168.0.199
             path: /srv/nfs/data
