@@ -1,0 +1,27 @@
+# 5-virtual-service.yaml
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: hedgus-app
+  namespace: hedgus
+spec:
+  hosts:
+    - mk.hedgus.com
+    - hedgus-app
+  gateways:
+    - hedgus-api
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: hedgus-app
+            subset: v1
+          weight: 50
+        - destination:
+            host: hedgus-app
+            subset: v2
+          weight: 50

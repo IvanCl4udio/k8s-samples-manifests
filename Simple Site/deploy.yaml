@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: site
+  name: site
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-site-nginx
+  namespace: site
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: site-nginx
+  namespace: site
+  labels:
+    kubernetes.io/metadata.name: site
+    backstage.io/kubernetes-id: tutorial
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: site-nginx
+  template:
+    metadata:
+      labels:
+        app: site-nginx
+        env: qa
+        backstage.io/kubernetes-id: tutorial
+    spec:
+      volumes:
+        - name: site-nginx-html
+          persistentVolumeClaim:
+            claimName: pvc-site-nginx
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: site-nginx-html 
+          mountPath: /usr/share/nginx/html
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "150m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-site-nginx
+  namespace: site
+spec:
+  selector:
+    app: site-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-site-nginx-lb
+  namespace: site
+spec:
+  selector:
+    app: site-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

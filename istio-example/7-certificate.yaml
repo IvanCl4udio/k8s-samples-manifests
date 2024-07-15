@@ -1,0 +1,16 @@
+# 7-certificate.yaml
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: hedgus-com
+  namespace: istio-ingress
+spec:
+  secretName: hedgus-crt
+  dnsNames:
+    - mk.hedgus.com
+  issuerRef:
+    name: production-cluster-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io

@@ -1,0 +1,29 @@
+# 1-deployment-v1.yaml
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hedgus-app-v1
+  namespace: hedgus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hedgus-app
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: hedgus-app
+        version: v1
+        istio: monitor
+    spec:
+      containers:
+        - image: mehmetkanus17/hedgus-page:v1
+          imagePullPolicy: IfNotPresent
+          name: hedgus-app
+          ports:
+            - name: http
+              containerPort: 80
+              # protocol: TCP

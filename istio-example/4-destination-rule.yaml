@@ -1,0 +1,19 @@
+# 4-destination-rule.yaml
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: hedgus-app
+  namespace: hedgus
+spec:
+  host: hedgus-app
+  subsets:
+    - name: v1
+      labels:
+        app: hedgus-app
+        version: v1
+    - name: v2
+      labels:
+        app: hedgus-app
+        version: v2

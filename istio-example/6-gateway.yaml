@@ -1,0 +1,27 @@
+# 6-gateway.yaml
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: hedgus-api
+  namespace: hedgus
+spec:
+  selector:
+    istio: gateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - mk.hedgus.com
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - mk.hedgus.com
+      tls:
+        credentialName: hedgus-crt
+        mode: SIMPLE

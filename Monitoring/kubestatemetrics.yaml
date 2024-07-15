@@ -12,7 +12,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: prometheus-kube-state-metrics
+            name: stable-kube-state-metrics
             port:
               number: 8080
   ingressClassName: nginx

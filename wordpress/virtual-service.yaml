@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: frontend-ingress
+spec:
+  hosts:
+  - "wordpress.lab-safer.com"
+  gateways:
+  - wordpress-gateway
+  http:
+  - route:
+    - destination:
+        host: wordpress.wordpress.svc.cluster.local
+        port:
+          number: 80

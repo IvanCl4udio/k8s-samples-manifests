@@ -12,7 +12,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: prometheus-kube-prometheus-prometheus
+            name: stable-kube-prometheus-sta-prometheus
             port:
               number: 9090
   ingressClassName: nginx

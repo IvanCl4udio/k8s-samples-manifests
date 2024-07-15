@@ -1,18 +1,21 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-postgresql
-  namespace: database
+  name: postgres-ingress
+  namespace: postgresql
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "TCP"
+    nginx.ingress.kubernetes.io/upstream-vhost: "localhost:5432"
 spec:
+  ingressClassName: nginx
   rules:
-  - host: database.lab.int
+  - host: postgresql.lab.int
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: postgresql
+            name: postgres
             port:
               number: 5432
-  ingressClassName: nginx

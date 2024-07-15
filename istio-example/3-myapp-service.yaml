@@ -1,0 +1,14 @@
+# 3-myapp-service.yaml
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hedgus-app
+  namespace: hedgus
+spec:
+  ports:
+    - name: http
+      port: 80
+  selector:
+    app: hedgus-app
