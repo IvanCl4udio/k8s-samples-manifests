@@ -96,7 +96,7 @@ spec:
             - name: PROVISIONER_NAME
               value: managed-nfs-storage
             - name: NFS_SERVER
-              value: 192.168.0.126
+              value: 192.168.0.118
             - name: NFS_PATH
               value: /srv/nfs/data
           resources:
@@ -109,7 +109,7 @@ spec:
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 192.168.0.126
+            server: 192.168.0.118
             path: /srv/nfs/data
 ---
 apiVersion: storage.k8s.io/v1

@@ -1,0 +1,150 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: db
+---
+# Senhas e credenciais (troque os valores!)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: db
+type: Opaque
+stringData:
+  POSTGRES_DB: appdb
+  POSTGRES_USER: appuser
+  POSTGRES_PASSWORD: Senha@123!
+---
+# Service headless para DNS estável do StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-hl
+  namespace: db
+  labels:
+    app: postgres
+spec:
+  clusterIP: None
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres
+---
+# Service ClusterIP para acesso normal no cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: db
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres
+---
+# NetworkPolicy (opcional, mas recomendado)
+# Libera acesso somente de pods no mesmo namespace "db".
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-allow-same-namespace
+  namespace: db
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}   # qualquer pod do namespace db
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+# StatefulSet com PVC via volumeClaimTemplates
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: db
+  labels:
+    app: postgres
+spec:
+  serviceName: postgres-hl
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      # Para NFS/CSI: garanta permissões de escrita no volume para o usuário do Postgres (uid 999)
+      securityContext:
+        fsGroup: 999
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: postgres-secret
+          # Diretório de dados padrão do Postgres
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          # Probes: rápidas e simples usando pg_isready
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h 127.0.0.1 -p 5432"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h 127.0.0.1 -p 5432"]
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+      # Opcional: corrige ownership em storages que aplicam root-squash (NFS)
+      initContainers:
+        - name: init-permissions
+          image: alpine:3.20
+          command: ["sh", "-c", "chown -R 999:999 /var/lib/postgresql/data || true"]
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]   # Para NFS RWX você pode usar ReadWriteMany, mas RWO é o padrão recomendado
+        resources:
+          requests:
+            storage: 20Gi
+        # Deixe sem storageClassName para usar o default do cluster (ex.: managed-nfs-storage)
+        # storageClassName: "managed-nfs-storage"
+

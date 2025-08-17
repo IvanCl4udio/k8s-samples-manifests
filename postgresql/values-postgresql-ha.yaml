@@ -1,0 +1,39 @@
+# values-postgresql-ha.yaml
+postgresql:
+  username: appuser
+  password: "TroqueEstaSenha-App"
+  database: appdb
+  repmgrPassword: "Senha@Repmgr!"
+  replicaCount: 3
+
+  # Controle de acesso básico dentro da rede do cluster
+  pgHbaConfiguration: |-
+    host all all 10.0.0.0/8 md5
+    host all all 172.16.0.0/12 md5
+    host all all 192.168.0.0/16 md5
+    local all all trust
+
+persistence:
+  enabled: true
+  storageClass: "managed-nfs-storage"   # vazio => vai usar o default "managed-nfs-storage"
+  size: 20Gi
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 30s
+    scrapeTimeout: 10s
+
+service:
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "2Gi"
+
